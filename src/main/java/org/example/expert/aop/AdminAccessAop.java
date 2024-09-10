@@ -4,7 +4,6 @@ import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
@@ -13,7 +12,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import java.io.UnsupportedEncodingException;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
@@ -25,14 +23,12 @@ public class AdminAccessAop {
 
     private final JwtUtil jwtUtil;
 
-    @Pointcut("execution(* org.example.expert.domain.comment.controller.CommentAdminController.*(..))")
-    private void forCommentAdmin() {}
+    @Pointcut("@annotation(org.example.expert.annotation.Admin)")
+    private void adminAnnotation(){}
 
-    @Pointcut("execution(* org.example.expert.domain.user.controller.UserAdminController.*(..))")
-    private void forUserAdmin() {}
 
-    @Before("forCommentAdmin() || forUserAdmin()")
-    public void adminRequest(JoinPoint joinPoint) throws UnsupportedEncodingException {
+    @Before("adminAnnotation()")
+    public void adminRequest() {
 
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
         String bearerJwt = request.getHeader("Authorization");
