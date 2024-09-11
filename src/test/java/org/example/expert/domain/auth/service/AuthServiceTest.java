@@ -4,6 +4,7 @@ import org.example.expert.config.JwtUtil;
 import org.example.expert.config.PasswordEncoder;
 import org.example.expert.domain.auth.dto.request.SignupRequest;
 import org.example.expert.domain.auth.dto.response.SignupResponse;
+import org.example.expert.domain.common.exception.InvalidRequestException;
 import org.example.expert.domain.user.entity.User;
 import org.example.expert.domain.user.enums.UserRole;
 import org.example.expert.domain.user.repository.UserRepository;
@@ -36,6 +37,8 @@ public class AuthServiceTest {
     @Test
     void 회원가입_정상_동작() {
         // given
+        SignupRequest signupRequest = new SignupRequest("email", "pwd", "USER");
+
         User user = new User("email", "$2a$04$jfQeXoc7b5IWWvZFPDE.he56RmITYyjnPA4haWZB2EgFda9uDXsHC", UserRole.USER);
 
         long userId = 1L;
@@ -51,13 +54,25 @@ public class AuthServiceTest {
         given(jwtUtil.createToken(anyLong(), anyString(), any(UserRole.class))).willReturn(bearerToken);
 
         // when
-        SignupRequest signupRequest = new SignupRequest("email", "pwd", "USER");
-
-        SignupResponse signupResponse = authService.signup(signupRequest);
+       SignupResponse signupResponse = authService.signup(signupRequest);
 
         // then
         assertNotNull(signupResponse.getBearerToken());
 
         assertEquals(bearerToken, signupResponse.getBearerToken());
+    }
+
+    @Test
+    void 회원가입중_중복된_이메일로_에러발생() {
+        // given
+        SignupRequest signupRequest = new SignupRequest("email", "pwd", "USER");
+
+        given(userRepository.existsByEmail(anyString())).willReturn(true);
+
+        // when
+        InvalidRequestException exception = assertThrows(InvalidRequestException.class, () -> authService.signup(signupRequest));
+
+        // then
+        assertEquals("이미 존재하는 이메일입니다." , exception.getMessage());
     }
 }
