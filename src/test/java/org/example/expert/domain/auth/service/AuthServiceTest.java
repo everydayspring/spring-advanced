@@ -1,6 +1,5 @@
 package org.example.expert.domain.auth.service;
 
-import jakarta.validation.constraints.Null;
 import org.example.expert.config.JwtUtil;
 import org.example.expert.config.PasswordEncoder;
 import org.example.expert.domain.auth.dto.request.SigninRequest;
