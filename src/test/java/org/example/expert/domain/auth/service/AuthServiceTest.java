@@ -7,6 +7,7 @@ import org.example.expert.domain.auth.dto.request.SigninRequest;
 import org.example.expert.domain.auth.dto.request.SignupRequest;
 import org.example.expert.domain.auth.dto.response.SigninResponse;
 import org.example.expert.domain.auth.dto.response.SignupResponse;
+import org.example.expert.domain.auth.exception.AuthException;
 import org.example.expert.domain.common.exception.InvalidRequestException;
 import org.example.expert.domain.user.entity.User;
 import org.example.expert.domain.user.enums.UserRole;
@@ -141,6 +142,24 @@ public class AuthServiceTest {
 
             // then
             assertEquals("가입되지 않은 유저입니다.", exception.getMessage());
+        }
+
+        @Test
+        void 로그인중_잘못된_비밀번호로_에러발생() {
+            // given
+            SigninRequest signinRequest = new SigninRequest("email", "pwd");
+
+            User user = new User("email", "$2a$04$jfQeXoc7b5IWWvZFPDE.he56RmITYyjnPA4haWZB2EgFda9uDXsHC", UserRole.USER);
+
+            given(userRepository.findByEmail(anyString())).willReturn(Optional.of(user));
+
+            given(passwordEncoder.matches(anyString(), anyString())).willReturn(false);
+
+            // when
+            AuthException exception = assertThrows(AuthException.class, () -> authService.signin(signinRequest));
+
+            // then
+            assertEquals("잘못된 비밀번호입니다.", exception.getMessage());
         }
     }
 }
