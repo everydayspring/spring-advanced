@@ -75,4 +75,18 @@ public class AuthServiceTest {
         // then
         assertEquals("이미 존재하는 이메일입니다." , exception.getMessage());
     }
+
+    @Test
+    void 회원가입중_유효하지_않은_권한값으로_에러발생() {
+        // given
+        SignupRequest signupRequest = new SignupRequest("email", "pwd", "유효하지_않은_권한값");
+
+        given(userRepository.existsByEmail(anyString())).willReturn(false);
+
+        // when
+        InvalidRequestException exception = assertThrows(InvalidRequestException.class, () -> authService.signup(signupRequest));
+
+        // then
+        assertEquals("유효하지 않은 UserRole" , exception.getMessage());
+    }
 }
