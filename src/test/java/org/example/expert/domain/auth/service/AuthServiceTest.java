@@ -1,5 +1,6 @@
 package org.example.expert.domain.auth.service;
 
+import jakarta.validation.constraints.Null;
 import org.example.expert.config.JwtUtil;
 import org.example.expert.config.PasswordEncoder;
 import org.example.expert.domain.auth.dto.request.SigninRequest;
@@ -126,6 +127,20 @@ public class AuthServiceTest {
             assertNotNull(signinResponse.getBearerToken());
 
             assertEquals(bearerToken, signinResponse.getBearerToken());
+        }
+
+        @Test
+        void 로그인중_존재하지_않는_유저로_에러발생() {
+            // given
+            SigninRequest signinRequest = new SigninRequest("email", "pwd");
+
+            given(userRepository.findByEmail(anyString())).willReturn(Optional.empty());
+
+            // when
+            InvalidRequestException exception = assertThrows(InvalidRequestException.class, () -> authService.signin(signinRequest));
+
+            // then
+            assertEquals("가입되지 않은 유저입니다.", exception.getMessage());
         }
     }
 }
