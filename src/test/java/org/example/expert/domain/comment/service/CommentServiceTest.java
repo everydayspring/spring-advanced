@@ -99,5 +99,19 @@ class CommentServiceTest {
             assertNotNull(commentList);
             assertEquals(3, commentList.size());
         }
+
+        @Test
+        void 댓글_전체조회중_존재하지_않는_todoId로_에러발생() {
+            // given
+            long todoId = 1L;
+
+            given(commentRepository.findByTodoIdWithUser(anyLong())).willReturn(null);
+
+            // when
+            NullPointerException exception = assertThrows(NullPointerException.class, () -> commentService.getComments(todoId));
+
+            // then
+            assertEquals("Cannot invoke \"java.util.List.iterator()\" because \"commentList\" is null", exception.getMessage());
+        }
     }
 }
