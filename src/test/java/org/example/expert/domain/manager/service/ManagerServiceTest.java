@@ -24,9 +24,10 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class ManagerServiceTest {
@@ -177,6 +178,39 @@ class ManagerServiceTest {
             // when & then
             InvalidRequestException exception = assertThrows(InvalidRequestException.class, () -> managerService.getManagers(todoId));
             assertEquals("Todo not found", exception.getMessage());
+        }
+    }
+
+    @Nested
+    class DeleteManagerTest {
+        @Test
+        void 담당자_삭제_정상동작() {
+            // given
+            long userId = 1L;
+            long todoId = 1L;
+            long managerId = 1L;
+
+            User user = new User("user1@example.com", "password", UserRole.USER);
+            ReflectionTestUtils.setField(user, "id", userId);
+
+            User newUser = new User("user2@example.com", "password", UserRole.USER);
+
+            Todo todo = new Todo("Title", "Contents", "Sunny", user);
+            ReflectionTestUtils.setField(todo, "id", todoId);
+
+            Manager manager = new Manager(newUser, todo);
+
+            given(userRepository.findById(anyLong())).willReturn(Optional.of(user));
+
+            given(todoRepository.findById(anyLong())).willReturn(Optional.of(todo));
+
+            given(managerRepository.findById(anyLong())).willReturn(Optional.of(manager));
+
+            // when
+            managerService.deleteManager(userId, todoId, managerId);
+
+            // then
+            verify(managerRepository, times(1)).delete(any(Manager.class));
         }
     }
 }
