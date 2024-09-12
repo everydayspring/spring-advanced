@@ -243,5 +243,28 @@ class ManagerServiceTest {
             // then
             assertEquals("Todo not found", exception.getMessage());
         }
+
+        @Test
+        void 담당자_삭제중_todo에_등록된_User가_없는_에러발생() {
+            // given
+            long userId = 1L;
+            long todoId = 1L;
+            long managerId = 1L;
+
+            User user = new User("user1@example.com", "password", UserRole.USER);
+
+            given(userRepository.findById(anyLong())).willReturn(Optional.of(user));
+
+            Todo todo = new Todo("Title", "Contents", "Sunny", user);
+            ReflectionTestUtils.setField(todo, "user", null);
+
+            given(todoRepository.findById(anyLong())).willReturn(Optional.of(todo));
+
+            // when
+            InvalidRequestException exception = assertThrows(InvalidRequestException.class, () ->managerService.deleteManager(userId, todoId, managerId));
+
+            // then
+            assertEquals("해당 일정을 만든 유저가 유효하지 않습니다.", exception.getMessage());
+        }
     }
 }
