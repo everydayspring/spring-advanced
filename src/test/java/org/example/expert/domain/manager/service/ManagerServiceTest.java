@@ -212,5 +212,19 @@ class ManagerServiceTest {
             // then
             verify(managerRepository, times(1)).delete(any(Manager.class));
         }
+
+        @Test
+        void 담당자_삭제중_유효하지_않은_userId_에러발생() {
+            // given
+            long userId = 1L;
+            long todoId = 1L;
+            long managerId = 1L;
+
+            // when
+            InvalidRequestException exception = assertThrows(InvalidRequestException.class, () ->managerService.deleteManager(userId, todoId, managerId));
+
+            // then
+            assertEquals("User not found", exception.getMessage());
+        }
     }
 }
