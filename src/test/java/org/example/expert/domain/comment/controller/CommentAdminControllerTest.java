@@ -24,11 +24,15 @@ public class CommentAdminControllerTest {
 
     @Test
     void deleteCommentTest() throws Exception {
+        // given
         long id = 1L;
 
+        // when
         ResultActions resultActions = mockMvc.perform(delete("/admin/comments/{id}", id));
 
+        // then
         resultActions.andExpect(status().isOk());
+
         verify(commentAdminService, times(1)).deleteComment(id);
     }
 
