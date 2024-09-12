@@ -33,7 +33,7 @@ class AuthControllerTest {
     private AuthService authService;
 
     @Test
-    void signup() throws Exception {
+    void signupTest() throws Exception {
         // given
         SignupRequest signupRequest = new SignupRequest("user@mail.com", "password", "USER");
 
@@ -51,7 +51,7 @@ class AuthControllerTest {
     }
 
     @Test
-    void signin() throws Exception {
+    void signinTest() throws Exception {
         // given
         SigninRequest signinRequest = new SigninRequest("user@mail.com", "password");
 
