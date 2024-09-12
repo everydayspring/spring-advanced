@@ -25,6 +25,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 
 @ExtendWith(MockitoExtension.class)
@@ -112,6 +113,33 @@ class ManagerServiceTest {
 
             // then
             assertEquals("담당자를 등록하려고 하는 유저가 일정을 만든 유저가 유효하지 않습니다.", exception.getMessage());
+        }
+
+        @Test
+        void todo등록중_일정_작성자를_담당자로_등록하려해_에러발생() {
+            // given
+            AuthUser authUser = new AuthUser(1L, "a@a.com", UserRole.USER);
+            long todoId = 1L;
+            long managerUserId = 2L;
+            ManagerSaveRequest managerSaveRequest = new ManagerSaveRequest(managerUserId);
+
+            User user = new User("b@b.com", "password", UserRole.USER);
+            ReflectionTestUtils.setField(user, "id", 1L);
+
+            Todo todo = new Todo();
+            ReflectionTestUtils.setField(todo, "user", user);
+
+            given(todoRepository.findById(todoId)).willReturn(Optional.of(todo));
+
+            given(userRepository.findById(anyLong())).willReturn(Optional.of(user));
+
+
+
+            // when
+            InvalidRequestException exception = assertThrows(InvalidRequestException.class, () -> managerService.saveManager(authUser, todoId, managerSaveRequest));
+
+            // then
+            assertEquals("일정 작성자는 본인을 담당자로 등록할 수 없습니다.", exception.getMessage());
         }
     }
 
